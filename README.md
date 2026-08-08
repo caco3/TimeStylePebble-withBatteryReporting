@@ -179,5 +179,42 @@ curl -X POST \
   https://your-endpoint.com/battery
 ```
 
+## Building and deploying
+
+### Build
+
+This project uses the PebbleOS SDK's `waf` to build the watchface. In this example the built SDK is located at `PebbleOS/build/sdk/waf`; adjust the path for your installation.
+
+1. Install the JS-bundler and C-library dependencies into a local `node_modules` directory:
+   ```bash
+   npm install webpack@1.15.0 webpack-fail-plugin json-loader pebble-fctx
+   ```
+
+2. Build the `.pbw` for all configured target platforms:
+   ```bash
+   NODE_PATH=node_modules /path/to/PebbleOS/build/sdk/waf configure build -j4
+   ```
+
+   The resulting bundle is written to `build/TimeStylePebble.pbw`.
+
+### Deploy
+
+The easiest way to install the built `.pbw` on an Android companion phone is via `adb`:
+
+1. Push the bundle to the phone's download folder:
+   ```bash
+   adb push build/TimeStylePebble.pbw /sdcard/Download/TimeStylePebble.pbw
+   ```
+
+2. Send a `VIEW` intent for the `.pbw` to let the Pebble companion app handle the install:
+   ```bash
+   adb shell am start --user 0 \
+     -a android.intent.action.VIEW \
+     -d file:///sdcard/Download/TimeStylePebble.pbw \
+     -t application/vnd.pebble.pbw
+   ```
+
+   If no activity handles the intent, open the file manually from your phone's Downloads app and select the Pebble companion app.
+
 ## Contributing
 Want to contribute to TimeStyle? Have a look at [the various feature requests that are still outstanding](https://github.com/freakified/TimeStylePebble/issues?q=is%3Aopen+is%3Aissue) -- just comment on one if you're interested in working on it!
